@@ -6,7 +6,7 @@ int main()
 {
 	Rcc_Init();
 	Rcc_Enable(RCC_GPIOA);
-
+	Rcc_Enable(RCC_GPIOB);
 	GPT_Init();
 
 	// vehicle lock button
