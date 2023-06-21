@@ -11,8 +11,8 @@ uint8 GPT_StartTimerIsCalled = 0; /* to let us know if the GPT_StartTimer functi
  */
 void GPT_Init(void)
 {
-	RCC_APB1ENR |= (1 << 0 );  /* TIM2 clock enabled */
-	Timer2->PSC = 15999;       /* set the required pre-scaler value */
+	RCC_APB1ENR |= (1 << 0); /* TIM2 clock enabled */
+	Timer2->PSC = 15999;	 /* set the required pre-scaler value */
 }
 
 /*
@@ -21,11 +21,13 @@ void GPT_Init(void)
  */
 void GPT_StartTimer(unsigned long int OverFlowTicks)
 {
-	GPT_StartTimerIsCalled = 1;  /* to know that the function is called */
-	Timer2->CNT = 0;             /* set the counter value to zero */
+	GPT_StartTimerIsCalled = 1;	 /* to know that the function is called */
+	Timer2->CNT = 0;			 /* set the counter value to zero */
 	Timer2->ARR = OverFlowTicks; /* set the required auto-reload value */
-	SET_BIT(Timer2->CR1, 0);     /* enable the counter for timer2 */
-	while(!(Timer2->SR & (1<<0))); /* wait until the counter is enabled */
+	SET_BIT(Timer2->CR1, 0);	 /* enable the counter for timer2 */
+	while (!(Timer2->SR & (1 << 0)))
+		;			/* wait until the counter is enabled */
+	Timer2->SR = 0; /* clear the overflow flag */
 }
 
 /*
@@ -35,12 +37,13 @@ void GPT_StartTimer(unsigned long int OverFlowTicks)
  */
 unsigned char GPT_CheckTimeIsElapsed(void)
 {
-	if(Timer2->SR & (1<<0))   /* if an overflow occurred return 1 */
+	if (Timer2->SR & (1 << 0)) /* if an overflow occurred return 1 */
 	{
+		Timer2->SR = 0; /* clear the overflow flag */
 		return 1;
 	}
-	else    /* may be the overflow has not occurred yet or we didn't call the GPT_StartTimer
-	           function after the last check of the overflow */
+	else /* may be the overflow has not occurred yet or we didn't call the GPT_StartTimer
+			function after the last check of the overflow */
 	{
 		return 0;
 	}
@@ -53,13 +56,13 @@ unsigned char GPT_CheckTimeIsElapsed(void)
  */
 unsigned long int GPT_GetElapsedTime(void)
 {
-	if(Timer2->SR & (1<<0))       /* if an overflow occurred return 0xffffffff */
+	if (Timer2->SR & (1 << 0)) /* if an overflow occurred return 0xffffffff */
 	{
 		return 0xffffffff;
 	}
 
-	return Timer2->CNT;          /* if no over flow occurred return the value of the counter and
-	                                it will be 0 if we didn't call the GPT_StartTimer function */
+	return Timer2->CNT; /* if no over flow occurred return the value of the counter and
+						   it will be 0 if we didn't call the GPT_StartTimer function */
 }
 
 /*
@@ -69,11 +72,12 @@ unsigned long int GPT_GetElapsedTime(void)
  */
 unsigned long int GPT_GetRemainingTime(void)
 {
-	if(Timer2->SR & (1<<0))        /* check if an overflow occurred to return 0 */
+	if (Timer2->SR & (1 << 0)) /* check if an overflow occurred to return 0 */
 		return 0;
-	if(GPT_StartTimerIsCalled == 0) /* if we didn't call GPT_startTime function */
-		return 0xffffffff;          /* then return 0xffffffff */
+	if (GPT_StartTimerIsCalled == 0) /* if we didn't call GPT_startTime function */
+		return 0xffffffff;			 /* then return 0xffffffff */
 
 	return Timer2->ARR - Timer2->CNT; /* if we called the GPT_startTime function and no overflow
-	                                     occurred then return the remaining time value */
+										 occurred then return the remaining time value */
 }
+
