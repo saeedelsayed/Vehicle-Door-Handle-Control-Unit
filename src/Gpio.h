@@ -11,11 +11,6 @@
 
 #define GPIO_A 'A'
 #define GPIO_B 'B'
-#define GPIO_C 'C'
-#define GPIO_D 'D'
-#define GPIO_E 'E'
-#define GPIO_h 'H'
-
 
 #define GPIO_INPUT  0x00
 #define GPIO_OUTPUT 0x01
@@ -29,23 +24,6 @@
 
 #define LOW    0x00   
 #define HIGH   0x01
-
-#define PIN0_ID                    0
-#define PIN1_ID                    1
-#define PIN2_ID                    2
-#define PIN3_ID                    3
-#define PIN4_ID                    4
-#define PIN5_ID                    5
-#define PIN6_ID                    6
-#define PIN7_ID                    7
-#define PIN8_ID                    8
-#define PIN9_ID                    9
-#define PIN10_ID                   10
-#define PIN11_ID                   11
-#define PIN12_ID                   12
-#define PIN13_ID                   13
-#define PIN14_ID                   14
-#define PIN15_ID                   15
 
 
 #define GPIO_NO_PULL   (0x00 << 1)

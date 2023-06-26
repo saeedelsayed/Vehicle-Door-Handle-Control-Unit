@@ -8,10 +8,12 @@
 #define RCC_H
 #include "Std_Types.h"
 typedef uint8 Rcc_PeripheralIdType;
+
 #define RCC_AHB1 0UL 
 #define RCC_AHB2 1UL
 #define RCC_APB1 2UL
 #define RCC_APB2 3UL
+
 #define RCC_GPIOA           (Rcc_PeripheralIdType)(RCC_AHB1*32 + 0UL)
 #define RCC_GPIOB           (Rcc_PeripheralIdType)(RCC_AHB1*32 + 1UL)
 #define RCC_GPIOC           (Rcc_PeripheralIdType)(RCC_AHB1*32 + 2UL)
@@ -45,7 +47,10 @@ typedef uint8 Rcc_PeripheralIdType;
 #define RCC_TIM9            (Rcc_PeripheralIdType)(RCC_APB2*32 + 16UL)
 #define RCC_TIM10           (Rcc_PeripheralIdType)(RCC_APB2*32 + 17UL)
 #define RCC_TIM11           (Rcc_PeripheralIdType)(RCC_APB2*32 + 18UL)
+
+
 void Rcc_Init(void);
 void Rcc_Enable(Rcc_PeripheralIdType PeripheralId);
 void Rcc_Disable(Rcc_PeripheralIdType PeripheralId);
+
 #endif /* RCC_H */

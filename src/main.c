@@ -2,186 +2,222 @@
 #include "Gpio.h"
 #include "Rcc.h"
 
+#define LED_ONE 0
+#define LED_TWO 1
+#define LED_THREE 2
+
+#define NUMBER_OF_ITERATIONS_PER_ONE_MILI_SECOND 762
+
+void Delay_MS(unsigned long long n)
+{
+  volatile unsigned long long count = 0;
+  while(count++ < (NUMBER_OF_ITERATIONS_PER_ONE_MILI_SECOND * n) );
+}
+
 int main()
 {
-	Rcc_Init();
-	Rcc_Enable(RCC_GPIOA);
-	Rcc_Enable(RCC_GPIOB);
-	GPT_Init();
-
-	// vehicle lock button
-	Gpio_ConfigPin(GPIO_A, PIN0_ID, GPIO_INPUT, GPIO_PULL_UP);
-
-	// door lock button
-	Gpio_ConfigPin(GPIO_A, PIN1_ID, GPIO_INPUT, GPIO_PULL_UP);
-
-	// leds pins
-	int output_pins[3] = {PIN0_ID, PIN1_ID, PIN2_ID};
-	int i = 0;
-	for (i; i < 3; i++)
-	{
-		Gpio_ConfigPin(GPIO_B, output_pins[i], GPIO_OUTPUT, GPIO_PUSH_PULL);
-		Gpio_WritePin(GPIO_B, output_pins[i], LOW);
-	}
-
-	// 1 means it's locked 0 is unlocked
-	uint8 door_lock = 1;
-	uint8 vehicle_lock = 1;
-
-	uint8 button1_pressed = 0, button2_pressed = 0, mode = -1;
-	uint32 time_elapsed = 0;
-	uint8 auto_reload = 0;
-	uint32 counter = 0;
-
-	while (1)
-	{
-
-		// vehicle unlock button pressed
-		if (!(Gpio_ReadPin(GPIO_A, PIN0_ID)) && !button1_pressed)
-		{
-
-			button1_pressed = 1;
-
-			if (vehicle_lock == 1)
-			{
-				mode = 1;
-				// vehicle unlocked
-				vehicle_lock = 0;
-				// Vehicle lock led on
-				Gpio_WritePin(GPIO_B, PIN0_ID, HIGH);
-				// Hazzard light
-				Gpio_WritePin(GPIO_B, PIN1_ID, HIGH);
-				// ambient lights
-				Gpio_WritePin(GPIO_B, PIN2_ID, HIGH);
-
-				// 500 ms
-
-				GPT_StartTimer(0x1F4);
-				counter = 0;
-			}
-			else
-			{
-
-				mode = 4;
-				Gpio_WritePin(GPIO_B, PIN0_ID, LOW);
-				vehicle_lock = 1;
-				// hazard light blinking 2 times
-				Gpio_WritePin(GPIO_B, PIN1_ID, HIGH);
-				GPT_StartTimer(0x1F4);
-				counter = 0;
-				// ambient light is off
-				Gpio_WritePin(GPIO_B, PIN2_ID, LOW);
-			}
-		}
-		else if (Gpio_ReadPin(GPIO_A, PIN0_ID))
-		{
-			button1_pressed = 0;
-		}
-
-		if (!(Gpio_ReadPin(GPIO_A, PIN1_ID)) && !button2_pressed)
-		{
-			if (vehicle_lock == 0)
-			{
-				if (door_lock == 1)
-				{
-					mode = 2;
-					// door unlocked
-					door_lock = 0;
-					// ambient light is on
-					Gpio_WritePin(GPIO_B, PIN2_ID, HIGH);
-				}
-			}
-			if (door_lock == 0)
-			{
-				mode = 3;
-				door_lock = 1;
-				// vehicle lock led off
-				Gpio_WritePin(GPIO_B, PIN0_ID, LOW);
-				// hazard light off
-				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
-				// ambient light on for one second
-				Gpio_WritePin(GPIO_B, PIN2_ID, HIGH);
-				GPT_StartTimer(0x1F4);
-				counter = 0;
-			}
-			// else nothing the vehicle is closed
-		}
-		else if (Gpio_ReadPin(GPIO_A, PIN1_ID))
-		{
-			button2_pressed = 0;
-		}
-
-
-		if (vehicle_lock == 0 && door_lock == 1 && mode == 1)
-		{
-			auto_reload = GPT_CheckTimeIsElapsed();
-
-			if (auto_reload == 1)
-				counter++;
-
-			// Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
-			if (counter == 1)
-			{
-				// Hazzard light off
-				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
-			}
-			if (counter == 4)
-			{
-				// ambient lights off
-				Gpio_WritePin(GPIO_B, PIN2_ID, LOW);
-			}
-			if (counter == 20)
-			{
-				vehicle_lock = 1;
-				mode = 0;
-				// Vehicle lock led OFF
-				Gpio_WritePin(GPIO_B, PIN0_ID, LOW);
-				// ambient lights OFF
-				Gpio_WritePin(GPIO_B, PIN2_ID, LOW);
-
-				// Hazzard light ON
-				Gpio_WritePin(GPIO_B, PIN1_ID, HIGH);
-				GPT_StartTimer(0x1F4);
-				counter = 0;
-			}
-		}
-
-		if (vehicle_lock == 0 && door_lock == 1 && mode == 3)
-		{
-			auto_reload = GPT_CheckTimeIsElapsed();
-			if (auto_reload == 1)
-				counter++;
-			if (counter == 2)
-			{
-				Gpio_WritePin(GPIO_B, PIN2_ID, LOW);
-				mode = 1;
-			}
-		}
-
-
-		if (vehicle_lock == 1 && door_lock == 1 && (mode == 0 || mode == 4))
-		{
-			if (GPT_CheckTimeIsElapsed() == 1)
-				counter++;
-			if (counter == 1)
-			{
-				// Hazzard light OFF
-				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
-			}
-			else if (counter == 2)
-			{
-				// Hazzard light ON
-				Gpio_WritePin(GPIO_B, PIN1_ID, HIGH);
-			}
-			else if (counter == 3)
-			{
-				// Hazzard light OFF
-				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
-				mode = -1;
-			}
-		}
-	}
-
-	return 0;
+  
+  Rcc_Init();
+  Rcc_Enable(RCC_GPIOA);
+  Rcc_Enable(RCC_GPIOB);
+  
+  GPT_Init();
+  
+  Gpio_ConfigPin(GPIO_A, 0, GPIO_INPUT, GPIO_PULL_UP);
+  Gpio_ConfigPin(GPIO_A, 1, GPIO_INPUT, GPIO_PULL_UP);
+  
+  int i;
+  for (i = LED_ONE; i <= LED_THREE; i++)
+  {
+    Gpio_ConfigPin(GPIO_B, i, GPIO_OUTPUT, GPIO_PUSH_PULL);
+    Gpio_WritePin(GPIO_B, i, LOW);
+  }
+  
+  
+  volatile uint8 isDoorLocked = 1;
+  volatile uint8 isDoorClosed = 1;
+  
+  volatile uint32 ticks = 0;
+  volatile uint8 isTimerOn = 0;
+  
+  volatile uint8 caseOne = 0;
+  volatile uint8 caseTwo = 0;
+  volatile uint8 caseThree = 0;
+  
+  volatile uint8 keyOnePressed = 0;
+  volatile uint8 keyTwoPressed = 0;
+  
+  while (1)
+  {
+    
+    if(!keyOnePressed){
+      if(!Gpio_ReadPin(GPIO_A, 0) && isDoorLocked && isDoorClosed){
+        Delay_MS(30);
+        
+        if(!Gpio_ReadPin(GPIO_A, 0)){
+          caseOne = 1;
+          keyOnePressed = 1;
+        }
+      }
+    }
+    
+    
+    
+    if(!keyTwoPressed){
+      if(!Gpio_ReadPin(GPIO_A, 1) && !isDoorClosed && !isDoorLocked){
+        Delay_MS(30);
+        
+        if(!Gpio_ReadPin(GPIO_A, 1)){
+          caseTwo = 1;
+          keyTwoPressed = 1;
+        }
+      }
+    }
+    
+    if(!keyOnePressed){
+      if(!Gpio_ReadPin(GPIO_A, 0) && isDoorClosed && !isDoorLocked){
+        Delay_MS(30);
+        
+        if(!Gpio_ReadPin(GPIO_A, 0)){
+          caseOne = 0;
+          caseThree = 1;
+          keyOnePressed = 1;
+          
+          isTimerOn = 0;
+        }
+      }
+    }
+    
+    if(Gpio_ReadPin(GPIO_A, 0)){
+      keyOnePressed = 0;
+    }
+    
+    if(Gpio_ReadPin(GPIO_A, 1)){
+      keyTwoPressed = 0;
+    }
+    
+    if(caseOne){
+      
+      isDoorLocked = 0;
+      
+      if(!isTimerOn)
+      {
+        
+        
+        Gpio_WritePin(GPIO_B, LED_ONE, HIGH);
+        Gpio_WritePin(GPIO_B, LED_TWO, HIGH);
+        Gpio_WritePin(GPIO_B, LED_THREE, HIGH);
+        
+        GPT_StartTimer(500);
+        isTimerOn = 1;
+        ticks = 0;
+      }
+      
+      if(GPT_CheckTimeIsElapsed()){
+        ticks++;
+      }
+      
+      if(ticks == 1){
+        Gpio_WritePin(GPIO_B, LED_TWO, LOW);
+      }else if(ticks == 4 && isDoorClosed){
+        Gpio_WritePin(GPIO_B, LED_THREE, LOW);
+      }else if(ticks >= 20 && isDoorClosed){
+        Gpio_WritePin(GPIO_B, LED_ONE, LOW);
+        Gpio_WritePin(GPIO_B, LED_THREE, LOW);
+        
+        if(ticks == 21 || ticks == 23){
+          Gpio_WritePin(GPIO_B, LED_TWO, LOW);
+          
+          if(ticks == 23){
+            isDoorLocked = 1;
+            isDoorClosed = 1;
+            isTimerOn = 0;
+            caseOne = 0;
+          }               
+        }else if(ticks == 20 || ticks == 22){
+          Gpio_WritePin(GPIO_B, LED_TWO, HIGH);  
+        }       
+      }
+      
+      if(!keyTwoPressed){
+        if(!Gpio_ReadPin(GPIO_A, 1) && isDoorClosed){
+          Delay_MS(30);
+          if(!Gpio_ReadPin(GPIO_A, 1)){
+            
+            Gpio_WritePin(GPIO_B, LED_THREE, HIGH);
+            
+            isDoorClosed = 0;
+            isTimerOn = 0;
+            caseOne = 0;
+            
+            keyTwoPressed = 1;
+          }        
+        } 
+      }
+    }
+    
+    if(caseTwo){
+      
+      if(!isTimerOn){
+        
+        Gpio_WritePin(GPIO_B, LED_ONE, LOW);
+        Gpio_WritePin(GPIO_B, LED_TWO, LOW);
+        Gpio_WritePin(GPIO_B, LED_THREE, LOW);
+        
+        GPT_StartTimer(1000);
+        isTimerOn = 1;
+        ticks = 0;
+      }
+      
+      if(GPT_CheckTimeIsElapsed()){
+        ticks++;
+      }
+      
+      if(ticks == 1){
+        Gpio_WritePin(GPIO_B, LED_THREE, HIGH);  
+      }else if(ticks == 2){
+        Gpio_WritePin(GPIO_B, LED_THREE, LOW);
+        
+        isDoorClosed = 1;
+        isTimerOn = 0;
+        caseTwo = 0;
+      }  
+    } 
+    
+    if(caseThree){
+      
+      if(!isTimerOn){
+        
+        Gpio_WritePin(GPIO_B, LED_ONE, LOW);
+        Gpio_WritePin(GPIO_B, LED_TWO, HIGH);
+        Gpio_WritePin(GPIO_B, LED_THREE, LOW);
+        
+        GPT_StartTimer(500);
+        isTimerOn = 1;
+        ticks = 0;
+      }
+      
+      if(GPT_CheckTimeIsElapsed()){
+        ticks++;
+      }
+      
+      if(ticks == 1 || ticks == 3){
+        Gpio_WritePin(GPIO_B, LED_TWO, LOW);
+        
+        
+        if(ticks == 3){
+          
+          isDoorLocked = 1;
+          isDoorClosed = 1;
+          isTimerOn = 0;
+          caseThree = 0;
+        }
+      }else if(ticks == 2){
+        Gpio_WritePin(GPIO_B, LED_TWO, HIGH);   
+      }
+    }
+  }
+  
+  return 0;
 }
 
