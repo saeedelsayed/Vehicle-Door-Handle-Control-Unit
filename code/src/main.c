@@ -66,119 +66,119 @@ int main()
 				flag_case4 = 1;
 			}
 		}
-		else if(Gpio_ReadPin(GPIO_A, PIN0_ID))
-		{
-			button1_pressed = 0;
-		}
-
-		if (!(Gpio_ReadPin(GPIO_A, PIN1_ID))&& button2_pressed)
-		{
-			if (vehicle_lock == 0)
-			{
-				if (door_lock == 1)
-				{
-
-					// door unlocked
-					door_lock = 0;
-					// ambient light is on
-					Gpio_WritePin(GPIO_B, PIN2_ID, HIGH);
-				}
-				else
-				{
-					door_lock = 1;
-					// vehicle lock led off
-					Gpio_WritePin(GPIO_B, PIN0_ID, LOW);
-					// hazard light off
-					Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
-					// ambient light on for one second
-					Gpio_WritePin(GPIO_B, PIN2_ID, HIGH);
-					GPT_StartTimer(0x2AF8);
-				}
-			}
-			// else nothing the vehicle is closed
-			
-		}
-		else if(Gpio_ReadPin(GPIO_A, PIN1_ID))
-		{
-			button2_pressed = 0;
-		}
-
-		if (vehicle_lock == 1 && flag_case4)
-		{
-			if (GPT_GetElapsedTime() > 500 && GPT_GetElapsedTime() < 1000)
-			{
-				// Hazzard light OFF
-				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
-			}
-			else if (GPT_GetElapsedTime() > 1000 && GPT_GetElapsedTime() < 1500)
-			{
-				// Hazzard light ON
-				Gpio_WritePin(GPIO_B, PIN1_ID, HIGH);
-			}
-			else if (GPT_GetElapsedTime() > 1500)
-			{
-				// Hazzard light OFF
-				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
-				flag_case4 = 0;
-			}
-		}
-
-		if (vehicle_lock == 0 && door_lock == 1 && GPT_GetElapsedTime() > 1000)
-		{
-			// ambient light off
-			Gpio_WritePin(GPIO_B, PIN2_ID, LOW);
-		}
-
-		if (vehicle_lock == 0 && flag_case1)
-		{
-			if (GPT_GetElapsedTime() > 500)
-			{
-				// Hazzard light off
-				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
-			}
-			if (GPT_GetElapsedTime() > 2000)
-			{
-				// ambient lights off
-				Gpio_WritePin(GPIO_B, PIN2_ID, LOW);
-				flag_case1 = 0;
-			}
-		}
-
-		if (door_lock == 1 && vehicle_lock == 0)
-		{
-			if (GPT_GetElapsedTime() > 10000)
-			{
-				vehicle_lock = 1;
-				// Vehicle lock led OFF
-				Gpio_WritePin(GPIO_B, PIN0_ID, LOW);
-				GPT_StartTimer(0x2AF8);
-				// ambient lights OFF
-				Gpio_WritePin(GPIO_B, PIN2_ID, LOW);
-				// Hazzard light ON
-				Gpio_WritePin(GPIO_B, PIN1_ID, HIGH);
-				flag_case2 = 1;
-			}
-		}
-
-		if (vehicle_lock == 1 && door_lock == 1 && flag_case2)
-		{
-			if ((GPT_GetElapsedTime() > 500 && GPT_GetElapsedTime() < 1000))
-			{
-				// Hazzard light OFF
-				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
-			}
-			else if (GPT_GetElapsedTime() > 1000 && GPT_GetElapsedTime() < 1500)
-			{
-				// Hazzard light ON
-				Gpio_WritePin(GPIO_B, PIN1_ID, HIGH);
-			}
-			else if (GPT_GetElapsedTime() > 1500)
-			{
-				// Hazzard light OFF
-				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
-				flag_case2 = 0;
-			}
-		}
+//		else if(Gpio_ReadPin(GPIO_A, PIN0_ID))
+//		{
+//			button1_pressed = 0;
+//		}
+//
+//		if (!(Gpio_ReadPin(GPIO_A, PIN1_ID))&& button2_pressed)
+//		{
+//			if (vehicle_lock == 0)
+//			{
+//				if (door_lock == 1)
+//				{
+//
+//					// door unlocked
+//					door_lock = 0;
+//					// ambient light is on
+//					Gpio_WritePin(GPIO_B, PIN2_ID, HIGH);
+//				}
+//				else
+//				{
+//					door_lock = 1;
+//					// vehicle lock led off
+//					Gpio_WritePin(GPIO_B, PIN0_ID, LOW);
+//					// hazard light off
+//					Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
+//					// ambient light on for one second
+//					Gpio_WritePin(GPIO_B, PIN2_ID, HIGH);
+//					GPT_StartTimer(0x2AF8);
+//				}
+//			}
+//			// else nothing the vehicle is closed
+//
+//		}
+//		else if(Gpio_ReadPin(GPIO_A, PIN1_ID))
+//		{
+//			button2_pressed = 0;
+//		}
+//
+//		if (vehicle_lock == 1 && flag_case4)
+//		{
+//			if (GPT_GetElapsedTime() > 500 && GPT_GetElapsedTime() < 1000)
+//			{
+//				// Hazzard light OFF
+//				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
+//			}
+//			else if (GPT_GetElapsedTime() > 1000 && GPT_GetElapsedTime() < 1500)
+//			{
+//				// Hazzard light ON
+//				Gpio_WritePin(GPIO_B, PIN1_ID, HIGH);
+//			}
+//			else if (GPT_GetElapsedTime() > 1500)
+//			{
+//				// Hazzard light OFF
+//				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
+//				flag_case4 = 0;
+//			}
+//		}
+//
+//		if (vehicle_lock == 0 && door_lock == 1 && GPT_GetElapsedTime() > 1000)
+//		{
+//			// ambient light off
+//			Gpio_WritePin(GPIO_B, PIN2_ID, LOW);
+//		}
+//
+//		if (vehicle_lock == 0 && flag_case1)
+//		{
+//			if (GPT_GetElapsedTime() > 500)
+//			{
+//				// Hazzard light off
+//				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
+//			}
+//			if (GPT_GetElapsedTime() > 2000)
+//			{
+//				// ambient lights off
+//				Gpio_WritePin(GPIO_B, PIN2_ID, LOW);
+//				flag_case1 = 0;
+//			}
+//		}
+//
+//		if (door_lock == 1 && vehicle_lock == 0)
+//		{
+//			if (GPT_GetElapsedTime() > 10000)
+//			{
+//				vehicle_lock = 1;
+//				// Vehicle lock led OFF
+//				Gpio_WritePin(GPIO_B, PIN0_ID, LOW);
+//				GPT_StartTimer(0x2AF8);
+//				// ambient lights OFF
+//				Gpio_WritePin(GPIO_B, PIN2_ID, LOW);
+//				// Hazzard light ON
+//				Gpio_WritePin(GPIO_B, PIN1_ID, HIGH);
+//				flag_case2 = 1;
+//			}
+//		}
+//
+//		if (vehicle_lock == 1 && door_lock == 1 && flag_case2)
+//		{
+//			if ((GPT_GetElapsedTime() > 500 && GPT_GetElapsedTime() < 1000))
+//			{
+//				// Hazzard light OFF
+//				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
+//			}
+//			else if (GPT_GetElapsedTime() > 1000 && GPT_GetElapsedTime() < 1500)
+//			{
+//				// Hazzard light ON
+//				Gpio_WritePin(GPIO_B, PIN1_ID, HIGH);
+//			}
+//			else if (GPT_GetElapsedTime() > 1500)
+//			{
+//				// Hazzard light OFF
+//				Gpio_WritePin(GPIO_B, PIN1_ID, LOW);
+//				flag_case2 = 0;
+//			}
+//		}
 	}
 
 	return 0;
